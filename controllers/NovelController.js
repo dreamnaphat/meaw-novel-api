@@ -7,7 +7,7 @@ class NovelController{
         let novelList = []
         try {
             novelList = await db
-                .select('books.id', 'books.title', 'books.author', 'books.created_at', db.raw('JSON_ARRAYAGG(genres.name) as tagList'))
+                .select('books.id', 'books.title', 'books.author', 'books.created_at', db.raw('JSON_ARRAYAGG(genres.name) as genreList'))
                 .from('books')
                 .leftJoin('books_genres', 'books.id', 'books_genres.book_id')
                 .leftJoin('genres', 'books_genres.genre_id', 'genres.id')
@@ -41,7 +41,7 @@ class NovelController{
         let novel = []
         try {
             novel = await db
-                .select('books.title', 'books.author', 'books.created_at', db.raw('JSON_ARRAYAGG(genres.name) as tagList'))
+                .select('books.title', 'books.author', 'books.created_at', db.raw('JSON_ARRAYAGG(genres.name) as genreList'))
                 .from('books')
                 .leftJoin('books_genres', 'books.id', 'books_genres.book_id')
                 .leftJoin('genres', 'books_genres.genre_id', 'genres.id')
