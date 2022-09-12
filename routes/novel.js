@@ -4,13 +4,19 @@ const NovelController = require('../controllers/NovelController')
 
 /* get all novel */
 router.get('/', async (request, response) => {
-    response.send(await NovelController.index("all"))
+    const novel = await NovelController.index("all")
+    if(novel.hasOwnProperty('status')) {
+        response.status(400).send(novel)
+    }
+    else {
+        response.status(200).send(novel)
+    }
 })
 /* get 1 novel */
 router.get('/:id', async (request, response) => {
     const novel = await NovelController.show(request)
     if(novel.hasOwnProperty('status')) {
-        response.status(400).send(novel)
+        response.status(404).send(novel)
     }
     else {
         response.status(200).send(novel)
@@ -21,7 +27,12 @@ router.post('/', async (request, response) => {
     const genreList = request.body.genres
     const novel = await NovelController.create(request)
     await NovelController.linkTag(novel.lastId, genreList)
-    response.send(createResponse)
+    if(novel.hasOwnProperty('status')) {
+        response.status(400).send(novel)
+    }
+    else {
+        response.status(201).send(novel)
+    }
 })
 /* update novel */
 router.put('/:id', async (request, response) => {
