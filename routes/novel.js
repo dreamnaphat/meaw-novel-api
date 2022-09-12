@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const multer = require('multer');
 const NovelController = require('../controllers/NovelController')
 
 /* get all novel */
@@ -24,15 +25,37 @@ router.get('/:id', async (request, response) => {
 })
 /* create novel */ 
 router.post('/', async (request, response) => {
-    const genreList = request.body.genres
-    const novel = await NovelController.create(request)
-    await NovelController.linkTag(novel.lastId, genreList)
-    if(novel.hasOwnProperty('status')) {
-        response.status(400).send(novel)
-    }
-    else {
-        response.status(201).send(novel)
-    }
+    /* upload image */
+    const imageStorage = multer.diskStorage({
+        destination: function (request, file, cb) {
+            cb(null, 'public/upload/images')
+        },
+        filename: function (request, file, cb) {
+            cb(null, file.originalname )
+        }
+    })
+    const uploadImage = multer({ storage: imageStorage }).single('fileImage')
+    uploadImage(request, response, async(error) => {
+        if (error instanceof multer.MulterError) {
+            return response.status(500).json(error)
+        } else if (error) {
+            return response.status(500).json(error)
+        }
+        /* prepare data to create new novel */
+        const data = {"books": request.body, "genres": request.body.genres}
+        delete data.books.genres
+        data.books.cover_image = request.file.filename
+        const genreList = data.genres
+        const novel = await NovelController.create(data)
+        await NovelController.linkTag(novel.lastId, genreList)
+        if(novel.hasOwnProperty('status')) {
+            response.status(400).send(novel)
+        }
+        else {
+            response.status(201).send(novel)
+        }
+    })
+    
 })
 /* update novel */
 router.put('/:id', async (request, response) => {

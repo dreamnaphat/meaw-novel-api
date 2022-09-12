@@ -7,7 +7,7 @@ class NovelController{
         let novelList = []
         try {
             novelList = await db
-                .select('books.id', 'books.title', 'books.author', 'books.description', 'books.created_at', db.raw('JSON_ARRAYAGG(genres.name) as genreList'))
+                .select('books.*', db.raw('JSON_ARRAYAGG(genres.name) as genreList'))
                 .from('books')
                 .leftJoin('books_genres', 'books.id', 'books_genres.book_id')
                 .leftJoin('genres', 'books_genres.genre_id', 'genres.id')
@@ -41,7 +41,7 @@ class NovelController{
         let novel = []
         try {
             novel = await db
-                .select('books.title', 'books.author', 'books.description', 'books.created_at', db.raw('JSON_ARRAYAGG(genres.name) as genreList'))
+                .select('books.*', db.raw('JSON_ARRAYAGG(genres.name) as genreList'))
                 .from('books')
                 .leftJoin('books_genres', 'books.id', 'books_genres.book_id')
                 .leftJoin('genres', 'books_genres.genre_id', 'genres.id')
@@ -65,7 +65,7 @@ class NovelController{
 
     static async create(request) {
         let newData = []
-        const dataToCreate = request.body.books
+        const dataToCreate = request.books
         try {
             newData = await db
                 .insert(dataToCreate)
@@ -84,7 +84,7 @@ class NovelController{
                 await db
                     .insert({
                         book_id: bookId,
-                        genre_id: genre
+                        genre_id: parseInt(genre)
                     })
                     .into('books_genres')
             }

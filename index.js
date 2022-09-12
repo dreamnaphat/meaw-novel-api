@@ -6,6 +6,7 @@ const chapter = require('./routes/chapter')
 
 app.use(express.json())
 app.use(cors())
+app.use('/images', express.static('public/upload/images'));
 
 app.use('/novel', novel)
 app.use('/chapter', chapter)
