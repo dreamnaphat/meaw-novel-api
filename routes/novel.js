@@ -18,9 +18,9 @@ router.get('/:id', async (request, response) => {
 })
 /* create novel */ 
 router.post('/', async (request, response) => {
-    const tagList = request.body.tags
+    const genreList = request.body.genres
     const novel = await NovelController.create(request)
-    await NovelController.linkTag(novel.lastId, tagList)
+    await NovelController.linkTag(novel.lastId, genreList)
     response.send(createResponse)
 })
 /* update novel */

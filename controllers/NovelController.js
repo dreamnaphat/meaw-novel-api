@@ -7,10 +7,10 @@ class NovelController{
         let novelList = []
         try {
             novelList = await db
-                .select('books.id', 'books.title', 'books.author', 'books.created_at', db.raw('JSON_ARRAYAGG(tags.name) as tagList'))
+                .select('books.id', 'books.title', 'books.author', 'books.created_at', db.raw('JSON_ARRAYAGG(genres.name) as tagList'))
                 .from('books')
-                .leftJoin('books_tags', 'books.id', 'books_tags.book_id')
-                .leftJoin('tags', 'books_tags.tag_id', 'tags.id')
+                .leftJoin('books_genres', 'books.id', 'books_genres.book_id')
+                .leftJoin('genres', 'books_genres.genre_id', 'genres.id')
                 .groupBy('books.title')
                 .orderBy('books.id', 'desc')
         }
@@ -41,10 +41,10 @@ class NovelController{
         let novel = []
         try {
             novel = await db
-                .select('books.title', 'books.author', 'books.created_at', db.raw('JSON_ARRAYAGG(tags.name) as tagList'))
+                .select('books.title', 'books.author', 'books.created_at', db.raw('JSON_ARRAYAGG(genres.name) as tagList'))
                 .from('books')
-                .leftJoin('books_tags', 'books.id', 'books_tags.book_id')
-                .leftJoin('tags', 'books_tags.tag_id', 'tags.id')
+                .leftJoin('books_genres', 'books.id', 'books_genres.book_id')
+                .leftJoin('genres', 'books_genres.genre_id', 'genres.id')
                 .groupBy('books.title')
                 .where('books.id', id)
         }
@@ -78,15 +78,15 @@ class NovelController{
         }
     }
 
-    static async linkTag(bookId, tagList) {
-        tagList.forEach( async(tag) => {
+    static async linkTag(bookId, genreList) {
+        genreList.forEach( async(genre) => {
             try {
                 await db
                     .insert({
                         book_id: bookId,
-                        tag_id: tag
+                        genre_id: genre
                     })
-                    .into('books_tags')
+                    .into('books_genres')
             }
             catch (error) {
                 return error
