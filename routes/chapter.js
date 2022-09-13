@@ -8,7 +8,13 @@ router.get('/', async (request, response) => {
 })
 /* get 1 chapter */
 router.get('/:id', async (request, response) => {
-    // response.send(await Chapter.show(request))
+    const chapter = await ChapterController.show(request)
+    if(chapter.hasOwnProperty('status')) {
+        response.status(404).send(chapter)
+    }
+    else {
+        response.status(200).send(chapter)
+    }
 })
 /* create chapter */
 router.post('/', async (request, response) => {

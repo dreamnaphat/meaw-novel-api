@@ -1,5 +1,6 @@
 const db = require('../database')
 const ChapterController = require('./ChapterController')
+const bcrypt = require('bcrypt')
 
 class NovelController{
 

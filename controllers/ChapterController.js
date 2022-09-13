@@ -34,28 +34,6 @@ class ChapterController{
         }
     }
 
-    static async getChapters(id) {
-        let chapter = []
-        try {
-            chapter = await db
-                .select('books.id as bookId', 'books.title', db.raw('MAX(chapters.created_at) as lastUpdate'))
-                .count('books.title as chapters')
-                .from('chapters')
-                .leftJoin('books', 'chapters.book_id', 'books.id')
-                .where('chapters.book_id', id)
-                .groupBy('books.title')
-        }
-        catch (error) {
-            return error
-        }
-        if(chapter.length > 0) {
-            return chapter[0]
-        }
-        else {
-            return 0
-        }
-    }
-
     static async getChapterContent(id) {
         let chapterList = []
         try {
@@ -74,6 +52,46 @@ class ChapterController{
         else {
             return null
         }
+    }
+
+    static async show(request) {
+        const { id } = request.params
+        let chapter = []
+        try {
+            chapter = await db
+                .select('books.title', 'chapters.*')
+                .from('chapters')
+                .leftJoin('books', 'chapters.book_id', 'books.id')
+                .where('chapters.id', id)
+            
+        }
+        catch (error) {
+            return error
+        }
+        if(chapter.length > 0) {
+            const contentLine = chapter[0].content.split("\n")
+            chapter[0].content = await this.addTab(contentLine)
+            return chapter[0]
+        }
+        else {
+            return {status: "failed", messages: "this id isn't exist."}
+        }
+    }
+
+    static addTab(textArray) {
+        const newTextArray = textArray.map(text => {
+            return `        ${text}`
+        })
+        return newTextArray
+    }
+
+    static hashId() {
+        let results = ''
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        for ( let i = 0; i < 12; i++ ) {
+            results += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return results;
     }
 }
 
